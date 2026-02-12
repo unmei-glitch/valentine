@@ -430,23 +430,27 @@
     ];
 
     function getRandomPosition() {
-        const btnRect = btnNo.getBoundingClientRect();
         const yesRect = btnYes.getBoundingClientRect();
 
-        const padding = 15;
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
-        const btnW = Math.max(btnRect.width, 80);
-        const btnH = Math.max(btnRect.height, 40);
+        // Use clientWidth/Height to exclude scrollbars
+        // visualViewport accounts for mobile keyboard & address bar
+        const vw = Math.min(document.documentElement.clientWidth, window.visualViewport ? window.visualViewport.width : Infinity);
+        const vh = Math.min(document.documentElement.clientHeight, window.visualViewport ? window.visualViewport.height : Infinity);
 
-        const maxX = vw - btnW - padding;
-        const maxY = vh - btnH - padding;
+        // Account for current scale when calculating real button size
+        const noScale = Math.max(0.4, 1 - (attempts + 1) * 0.06);
+        const btnW = 120 * noScale;
+        const btnH = 48 * noScale;
+
+        const padding = 10;
+        const safeMaxX = vw - btnW - padding;
+        const safeMaxY = vh - btnH - padding;
 
         let x, y, tries = 0;
 
         do {
-            x = padding + Math.random() * (maxX - padding);
-            y = padding + Math.random() * (maxY - padding);
+            x = padding + Math.random() * Math.max(0, safeMaxX - padding);
+            y = padding + Math.random() * Math.max(0, safeMaxY - padding);
             tries++;
         } while (
             tries < 50 &&
@@ -454,9 +458,9 @@
             y < yesRect.bottom + 30 && y + btnH > yesRect.top - 30
         );
 
-        // Clamp to stay within viewport
-        x = Math.max(padding, Math.min(x, maxX));
-        y = Math.max(padding, Math.min(y, maxY));
+        // Hard clamp — never go outside visible area
+        x = Math.max(padding, Math.min(x, safeMaxX));
+        y = Math.max(padding, Math.min(y, safeMaxY));
 
         return { x, y };
     }
