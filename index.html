@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Для тебя, Алиса 💌</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Pacifico&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a0a2e, #2d1b4e, #1a0a2e);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Comfortaa', cursive;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .hearts-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            font-size: 20px;
+            animation: floatUp linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-110vh) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        .card {
+            position: relative;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 100, 150, 0.2);
+            border-radius: 30px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 520px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), 0 0 80px rgba(255, 50, 100, 0.1);
+            animation: cardAppear 1s ease-out;
+        }
+
+        @keyframes cardAppear {
+            from { transform: scale(0.8) translateY(30px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .envelope {
+            font-size: 60px;
+            margin-bottom: 10px;
+            animation: bounce 2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .name {
+            font-family: 'Pacifico', cursive;
+            font-size: 42px;
+            background: linear-gradient(90deg, #ff6b9d, #ff9a9e, #ffd1dc, #ff9a9e, #ff6b9d);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 3s linear infinite;
+            margin-bottom: 8px;
+        }
+
+        @keyframes shimmer {
+            to { background-position: 200% center; }
+        }
+
+        .question {
+            color: #e8d5f5;
+            font-size: 22px;
+            line-height: 1.6;
+            margin: 20px 0 35px;
+        }
+
+        .question .highlight {
+            color: #ff6b9d;
+            font-weight: 700;
+            font-size: 26px;
+            display: block;
+            margin-top: 10px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            min-height: 70px;
+            position: relative;
+        }
+
+        .btn-yes {
+            padding: 16px 48px;
+            font-size: 20px;
+            font-family: 'Comfortaa', cursive;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #ff6b9d, #ff3366);
+            color: white;
+            box-shadow: 0 8px 25px rgba(255, 51, 102, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-yes:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(255, 51, 102, 0.6);
+        }
+
+        .btn-yes::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(transparent, rgba(255,255,255,0.2), transparent);
+            transform: rotate(45deg);
+            animation: btnShine 3s ease-in-out infinite;
+        }
+
+        @keyframes btnShine {
+            0%, 100% { transform: rotate(45deg) translateX(-100%); }
+            50% { transform: rotate(45deg) translateX(100%); }
+        }
+
+        .btn-no {
+            padding: 14px 36px;
+            font-size: 16px;
+            font-family: 'Comfortaa', cursive;
+            font-weight: 700;
+            border: 2px solid rgba(255, 107, 157, 0.4);
+            border-radius: 50px;
+            cursor: pointer;
+            background: rgba(255, 255, 255, 0.05);
+            color: #cba6d6;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+
+        .counter-text {
+            color: #9a7baf;
+            font-size: 13px;
+            margin-top: 20px;
+            min-height: 20px;
+            transition: opacity 0.3s;
+        }
+
+        /* Success screen */
+        .success-screen {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 1000;
+            background: linear-gradient(135deg, #1a0a2e, #2d1b4e);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .success-screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .success-heart {
+            font-size: 120px;
+            animation: heartPulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes heartPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .success-text {
+            font-family: 'Pacifico', cursive;
+            font-size: 38px;
+            background: linear-gradient(90deg, #ff6b9d, #ff9a9e, #ffd1dc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 20px 0 10px;
+        }
+
+        .success-sub {
+            color: #e8d5f5;
+            font-size: 20px;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        .sparkle-container {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1001;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 30px;
+            animation: sparkleAnim 1.5s ease-out forwards;
+        }
+
+        @keyframes sparkleAnim {
+            0% { transform: scale(0) rotate(0deg); opacity: 1; }
+            50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+            100% { transform: scale(0) rotate(360deg) translateY(-100px); opacity: 0; }
+        }
+
+        .growing-yes {
+            animation: growYes 0.3s ease forwards;
+        }
+
+        @keyframes growYes {
+            to { transform: scale(1.15); }
+        }
+
+        /* Messages that appear on No hover */
+        .flee-message {
+            position: absolute;
+            color: #ff6b9d;
+            font-size: 14px;
+            font-weight: 700;
+            pointer-events: none;
+            opacity: 0;
+            animation: msgPop 1.5s ease forwards;
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        @keyframes msgPop {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            20% { opacity: 1; transform: translateY(-10px) scale(1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-40px); }
+        }
+
+        /* --- Mobile adaptation --- */
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .card {
+                padding: 30px 20px;
+                border-radius: 20px;
+                width: 95%;
+            }
+
+            .envelope {
+                font-size: 44px;
+            }
+
+            .name {
+                font-size: 30px;
+            }
+
+            .question {
+                font-size: 16px;
+                margin: 15px 0 25px;
+            }
+
+            .question .highlight {
+                font-size: 19px;
+            }
+
+            .btn-yes {
+                padding: 14px 36px;
+                font-size: 17px;
+            }
+
+            .btn-no {
+                padding: 10px 24px;
+                font-size: 14px;
+            }
+
+            .counter-text {
+                font-size: 12px;
+            }
+
+            .success-heart {
+                font-size: 80px;
+            }
+
+            .success-text {
+                font-size: 28px;
+            }
+
+            .success-sub {
+                font-size: 16px;
+                max-width: 300px;
+                padding: 0 15px;
+            }
+
+            .flee-message {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .name {
+                font-size: 26px;
+            }
+
+            .question {
+                font-size: 14px;
+            }
+
+            .question .highlight {
+                font-size: 17px;
+            }
+
+            .btn-yes {
+                padding: 12px 28px;
+                font-size: 15px;
+            }
+
+            .success-text {
+                font-size: 24px;
+            }
+
+            .success-sub {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="hearts-bg" id="heartsBg"></div>
+
+<div class="card" id="mainCard">
+    <div class="envelope">💌</div>
+    <div class="name">Алиса</div>
+    <p class="question">
+        У меня к тебе один важный вопрос...
+        <span class="highlight">Будешь ли ты моей валентинкой? 💕</span>
+    </p>
+    <div class="buttons" id="buttonsArea">
+        <button class="btn-yes" id="btnYes" onclick="sayYes()">Да! 💖</button>
+        <button class="btn-no" id="btnNo">Нет</button>
+    </div>
+    <div class="counter-text" id="counterText"></div>
+</div>
+
+<div class="success-screen" id="successScreen">
+    <div class="sparkle-container" id="sparkleContainer"></div>
+    <div class="success-heart">💖</div>
+    <div class="success-text">Ура!</div>
+    <p class="success-sub">Ты сделала меня самым счастливым человеком на свете, лися! 🥰</p>
+</div>
+
+<script>
+    // --- Floating hearts background ---
+    const heartsBg = document.getElementById('heartsBg');
+    const heartEmojis = ['💕', '💖', '💗', '💓', '💘', '💝', '❤️', '🩷', '✨', '🌸'];
+
+    function createFloatingHeart() {
+        const heart = document.createElement('div');
+        heart.classList.add('floating-heart');
+        heart.textContent = heartEmojis[Math.floor(Math.random() * heartEmojis.length)];
+        heart.style.left = Math.random() * 100 + '%';
+        heart.style.fontSize = (14 + Math.random() * 20) + 'px';
+        heart.style.animationDuration = (6 + Math.random() * 8) + 's';
+        heart.style.animationDelay = Math.random() * 2 + 's';
+        heartsBg.appendChild(heart);
+        setTimeout(() => heart.remove(), 16000);
+    }
+
+    setInterval(createFloatingHeart, 400);
+    for (let i = 0; i < 15; i++) setTimeout(createFloatingHeart, i * 200);
+
+    // --- No button logic ---
+    const btnNo = document.getElementById('btnNo');
+    const btnYes = document.getElementById('btnYes');
+    const buttonsArea = document.getElementById('buttonsArea');
+    const counterText = document.getElementById('counterText');
+
+    let attempts = 3;
+    const fleeMessages = [
+        'Не-не-не! 😏',
+        'Даже не надейся!',
+        'Попробуй ещё раз 😜',
+        'Тут нельзя нажать! 💅',
+        'Я слишком быстрая! 🏃‍♀️',
+        'Нажми лучше "Да"! 💖',
+        'Эта кнопка сломана 🤷',
+        'Упс, промах! 😄',
+        'Алиса, ну давай! 🥺',
+        'Сопротивление бесполезно! 💘',
+        'Кнопка убежала! 🏃',
+        'Ближе... ближе... НЕТ 😂',
+        'Ты почти поймала! (нет) 🤭',
+        'Эта кнопка на диете 🤸',
+        'Ctrl+Z не поможет! ⌨️',
+    ];
+
+    function getRandomPosition() {
+        const btnRect = btnNo.getBoundingClientRect();
+        const yesRect = btnYes.getBoundingClientRect();
+
+        const padding = 15;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const btnW = Math.max(btnRect.width, 80);
+        const btnH = Math.max(btnRect.height, 40);
+
+        const maxX = vw - btnW - padding;
+        const maxY = vh - btnH - padding;
+
+        let x, y, tries = 0;
+
+        do {
+            x = padding + Math.random() * (maxX - padding);
+            y = padding + Math.random() * (maxY - padding);
+            tries++;
+        } while (
+            tries < 50 &&
+            x < yesRect.right + 30 && x + btnW > yesRect.left - 30 &&
+            y < yesRect.bottom + 30 && y + btnH > yesRect.top - 30
+        );
+
+        // Clamp to stay within viewport
+        x = Math.max(padding, Math.min(x, maxX));
+        y = Math.max(padding, Math.min(y, maxY));
+
+        return { x, y };
+    }
+
+    function showFleeMessage(x, y) {
+        const msg = document.createElement('div');
+        msg.classList.add('flee-message');
+        msg.textContent = fleeMessages[attempts % fleeMessages.length];
+        msg.style.left = x + 'px';
+        msg.style.top = y + 'px';
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 1500);
+    }
+
+    function fleeButton(e) {
+        attempts++;
+        const rect = btnNo.getBoundingClientRect();
+        showFleeMessage(rect.left, rect.top - 10);
+
+        const pos = getRandomPosition();
+
+        // Switch to fixed positioning for free movement
+        btnNo.style.position = 'fixed';
+        btnNo.style.left = pos.x + 'px';
+        btnNo.style.top = pos.y + 'px';
+        btnNo.style.zIndex = '999';
+
+        // Shrink "No" and grow "Yes" with each attempt
+        const noScale = Math.max(0.4, 1 - attempts * 0.06);
+        btnNo.style.transform = `scale(${noScale})`;
+
+        const yesGrow = 1 + attempts * 0.05;
+        btnYes.style.transform = `scale(${Math.min(yesGrow, 1.5)})`;
+        btnYes.style.boxShadow = `0 ${8 + attempts * 2}px ${25 + attempts * 4}px rgba(255, 51, 102, ${0.4 + attempts * 0.03})`;
+
+        // Change No button text after several attempts
+        if (attempts === 3) btnNo.textContent = 'Неа';
+        if (attempts === 5) btnNo.textContent = '🏃';
+        if (attempts === 7) btnNo.textContent = '👻';
+        if (attempts === 10) btnNo.textContent = '...';
+        if (attempts >= 12) {
+            btnNo.style.opacity = Math.max(0.15, 1 - attempts * 0.07);
+        }
+
+        // Counter text
+        const texts = [
+            '', '', '',
+            'Кажется, кнопка не хочет нажиматься... 🤔',
+            'Может, это знак? 😏',
+            'Кнопка "Нет" объявила забастовку!',
+            'Она реально убегает от тебя 😂',
+            'Упорство — это хорошо, но... 💖',
+            'Вселенная говорит "Да"! ✨',
+            'Ладно, я восхищаюсь твоим упорством 😄',
+            'Кнопка "Нет" покинула чат 👋',
+        ];
+        counterText.textContent = texts[Math.min(attempts, texts.length - 1)] || texts[texts.length - 1];
+    }
+
+    btnNo.addEventListener('mouseenter', fleeButton);
+    btnNo.addEventListener('touchstart', (e) => { e.preventDefault(); fleeButton(e); });
+    btnNo.addEventListener('click', fleeButton);
+
+    // --- Yes button ---
+    function sayYes() {
+        // Explosion of sparkles
+        const container = document.getElementById('sparkleContainer');
+        const emojis = ['💖', '💕', '✨', '🌸', '💗', '💘', '🎉', '🥰', '❤️', '💝'];
+
+        for (let i = 0; i < 60; i++) {
+            setTimeout(() => {
+                const sparkle = document.createElement('div');
+                sparkle.classList.add('sparkle');
+                sparkle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                sparkle.style.left = Math.random() * 100 + '%';
+                sparkle.style.top = Math.random() * 100 + '%';
+                sparkle.style.fontSize = (20 + Math.random() * 40) + 'px';
+                sparkle.style.animationDuration = (1 + Math.random() * 2) + 's';
+                container.appendChild(sparkle);
+                setTimeout(() => sparkle.remove(), 3000);
+            }, i * 50);
+        }
+
+        document.getElementById('successScreen').classList.add('active');
+    }
+</script>
+</body>
+</html>
