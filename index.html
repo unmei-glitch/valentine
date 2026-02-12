@@ -162,6 +162,7 @@
             color: #cba6d6;
             transition: all 0.15s ease;
             position: relative;
+            transform-origin: 0 0;
         }
 
         .counter-text {
@@ -432,25 +433,24 @@
     function getRandomPosition() {
         const yesRect = btnYes.getBoundingClientRect();
 
-        // Use clientWidth/Height to exclude scrollbars
-        // visualViewport accounts for mobile keyboard & address bar
-        const vw = Math.min(document.documentElement.clientWidth, window.visualViewport ? window.visualViewport.width : Infinity);
-        const vh = Math.min(document.documentElement.clientHeight, window.visualViewport ? window.visualViewport.height : Infinity);
+        const vv = window.visualViewport;
+        const vw = vv ? vv.width : document.documentElement.clientWidth;
+        const vh = vv ? vv.height : document.documentElement.clientHeight;
 
-        // Account for current scale when calculating real button size
-        const noScale = Math.max(0.4, 1 - (attempts + 1) * 0.06);
-        const btnW = 120 * noScale;
-        const btnH = 48 * noScale;
+        // offsetWidth/Height give unscaled size; multiply by next scale
+        const nextScale = Math.max(0.4, 1 - (attempts + 1) * 0.06);
+        const btnW = btnNo.offsetWidth * nextScale;
+        const btnH = btnNo.offsetHeight * nextScale;
 
         const padding = 10;
-        const safeMaxX = vw - btnW - padding;
-        const safeMaxY = vh - btnH - padding;
+        const safeMaxX = Math.max(padding, vw - btnW - padding);
+        const safeMaxY = Math.max(padding, vh - btnH - padding);
 
         let x, y, tries = 0;
 
         do {
-            x = padding + Math.random() * Math.max(0, safeMaxX - padding);
-            y = padding + Math.random() * Math.max(0, safeMaxY - padding);
+            x = padding + Math.random() * (safeMaxX - padding);
+            y = padding + Math.random() * (safeMaxY - padding);
             tries++;
         } while (
             tries < 50 &&
@@ -458,7 +458,6 @@
             y < yesRect.bottom + 30 && y + btnH > yesRect.top - 30
         );
 
-        // Hard clamp — never go outside visible area
         x = Math.max(padding, Math.min(x, safeMaxX));
         y = Math.max(padding, Math.min(y, safeMaxY));
 
